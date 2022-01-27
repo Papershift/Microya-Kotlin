@@ -58,8 +58,6 @@ dependencies {
     testImplementation "androidx.test.ext:junit:$version_junit_ext"
     androidTestImplementation "androidx.test.ext:junit:$version_junit_ext"
     androidTestImplementation "androidx.test.ext:junit-ktx:$version_junit_ext"
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$version_lifecycle"
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$version_lifecycle"
 
     androidTestImplementation "androidx.test:runner:$version_test_runner"
     androidTestImplementation "androidx.arch.core:core-testing:$version_ach_core_test"
