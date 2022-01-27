@@ -30,6 +30,9 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
+        freeCompilerArgs += [
+                '-Xopt-in=kotlin.time.ExperimentalTime',
+        ]
     }
 }
 
@@ -60,7 +63,6 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit-ktx:$version_junit_ext"
 
     androidTestImplementation "androidx.test:runner:$version_test_runner"
-    androidTestImplementation "androidx.arch.core:core-testing:$version_ach_core_test"
 
     // Kotlin-Result
     api "com.michael-bull.kotlin-result:kotlin-result:$version_kotlin_result"
