@@ -2,6 +2,7 @@ package com.papershift.microya.plugins
 
 import com.papershift.microya.core.Endpoint
 import com.papershift.microya.core.Plugin
+import com.papershift.microya.plugins.HttpAuthPlugin.Scheme
 import okhttp3.Request
 import okhttp3.Response
 

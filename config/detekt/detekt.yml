@@ -32,3 +32,8 @@ style:
   UnusedPrivateMember:
     active: false
     allowedNames: "(_|ignored|expected|serialVersionUID)"
+
+exceptions:
+  active: true
+  TooGenericExceptionCaught:
+    active: false

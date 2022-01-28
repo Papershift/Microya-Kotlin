@@ -1,11 +1,7 @@
 package com.papershift.microya.core
 
-import okhttp3.HttpUrl
+import okhttp3.*
 import okhttp3.HttpUrl.Companion.toHttpUrl
-import okhttp3.Protocol
-import okhttp3.Request
-import okhttp3.Response
-import okhttp3.ResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
 
 /**
@@ -70,7 +66,7 @@ class MockedResponse {
             in 500..599 -> "Server Error"
             else -> throw IllegalArgumentException(
                 "Support for this status code doesn't exist yet. " +
-                        "To add support for it. Please update the MockedResponse class in the API-Client"
+                    "To add support for it. Please update the MockedResponse class in the API-Client"
             )
         }
     }

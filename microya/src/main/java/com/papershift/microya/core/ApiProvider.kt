@@ -67,7 +67,8 @@ class ApiProvider private constructor(
          * Use null to make actual requests to your server (the default).
          * @param mockingBehaviour is the user defined mocking behaviour of the API provider.
          */
-        fun mockingBehaviour(mockingBehaviour: MockingBehaviour<Endpoint>?) = apply { this.mockingBehaviour = mockingBehaviour }
+        fun mockingBehaviour(mockingBehaviour: MockingBehaviour<Endpoint>?) =
+            apply { this.mockingBehaviour = mockingBehaviour }
 
         /**
          * Sets up  the json serializer used for serialising json requests.
@@ -81,7 +82,8 @@ class ApiProvider private constructor(
          */
         fun responseJsonFormatter(json: Json) = apply { this.responseJsonFormatter = json }
 
-        fun build() = ApiProvider(requireNotNull(baseUrl) { "Base URL should not be null." },
+        fun build() = ApiProvider(
+            requireNotNull(baseUrl) { "Base URL should not be null." },
             requireNotNull(client) { "Client should not be null." },
             plugins,
             mockingBehaviour,
@@ -111,7 +113,8 @@ class ApiProvider private constructor(
         }
         // Returns mocked responses if mocking behaviour is turned on.
         if (mockingBehaviour != null) {
-            val mockedResponse = mockingBehaviour.mockResponseProvider(endpoint)?.httpUrlResponse(baseUrl)
+            val mockedResponse =
+                mockingBehaviour.mockResponseProvider(endpoint)?.httpUrlResponse(baseUrl)
             return if (mockedResponse != null) {
                 decodeResponse<Success, ClientError>(mockedResponse, endpoint)
             } else {
@@ -140,14 +143,18 @@ class ApiProvider private constructor(
         }
     }
 
-    inline fun <reified Success, reified ClientError> decodeResponse(response: Response, endpoint: Endpoint): Result<Success, JsonApiException> {
+    inline fun <reified Success, reified ClientError> decodeResponse(
+        response: Response,
+        endpoint: Endpoint
+    ): Result<Success, JsonApiException> {
         return when (response.code) {
             in 200..299 -> {
                 if (response.body != null) {
                     try {
                         val responseBody = response.body!!.string()
                         if (responseBody.isNotEmpty()) {
-                            val typedResult: Success = responseJsonFormatter.decodeFromString(responseBody)
+                            val typedResult: Success =
+                                responseJsonFormatter.decodeFromString(responseBody)
                             onRequestComplete(response, typedResult, endpoint)
                             Ok(typedResult)
                         } else {
