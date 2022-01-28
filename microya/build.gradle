@@ -5,6 +5,8 @@ plugins {
     id 'maven-publish'
 }
 
+apply from: file('jacoco.gradle')
+
 android {
     compileSdk 31
 
