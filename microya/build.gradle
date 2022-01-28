@@ -3,7 +3,6 @@ plugins {
     id 'kotlin-android'
     id 'kotlinx-serialization'
     id 'maven-publish'
-    id "io.gitlab.arturbosch.detekt" version '1.19.0'
 }
 
 android {
