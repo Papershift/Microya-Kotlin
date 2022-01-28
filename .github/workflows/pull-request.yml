@@ -1,0 +1,155 @@
+name: Pull Request
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  cancel-previous-runs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Cancel previous runs of this workflow on same branch
+        uses: rokroskar/workflow-run-cleanup-action@v0.2.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  danger-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 100
+      - name: Bundle Install
+        run: |
+          sudo gem install bundler
+          sudo rm Gemfile.lock
+          sudo bundle install
+      - name: Danger Lint (remote)
+        run: |
+          curl -o danger/pr_git_conventions.rb 'https://raw.githubusercontent.com/Papershift/Mobile-Lint/main/Shared/Danger/pr_git_conventions.rb'
+          bundle exec danger --dangerfile=danger/pr_git_conventions.rb --danger_id=pr_git_conventions --fail-on-errors=true
+        env:
+          DANGER_GITHUB_API_TOKEN: ${{ secrets.DANGER_GITHUB_API_TOKEN }}
+
+      - name: Danger Lint (local)
+        if: always()
+        run: bundle exec danger --dangerfile=danger/lint.rb --danger_id=lint --fail-on-errors=true
+        env:
+          DANGER_GITHUB_API_TOKEN: ${{ secrets.DANGER_GITHUB_API_TOKEN }}
+
+    # Comment until [this](https://github.com/mxcl/swift-sh/issues/179) is fixed
+    #
+    #  anylint:
+    #    runs-on: [self-hosted, macOS, arm64, MacStadium]
+    #
+    #    steps:
+    #      - uses: actions/checkout@v2
+    #
+    #      - name: Run AnyLint
+    #        run: anylint
+
+  unit-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run unit tests
+        run: ./gradlew testDebugUnitTest
+
+      - name: Upload Java classes
+        uses: actions/upload-artifact@v2
+        with:
+          name: java-classes
+          path: apiclient/build/intermediates/javac/debug
+
+      - name: Upload Kotlin classes
+        uses: actions/upload-artifact@v2
+        with:
+          name: kotlin-classes
+          path: apiclient/build/tmp/kotlin-classes/debug
+
+      - name: Upload Unit Tests Exec File
+        uses: actions/upload-artifact@v2
+        with:
+          name: unit-tests-exec
+          path: apiclient/build/jacoco/testDebugUnitTest.exec
+
+  ui-tests:
+    runs-on: [ self-hosted, macOS, arm64 ]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Start Emulatur & Run UI tests
+        run: |
+          adb -s emulator-5554 emu kill > /dev/null 2>&1 &
+          $ANDROID_HOME/emulator/emulator -avd PIXEL_XL_API_30 -no-boot-anim -no-audio -no-snapshot > /dev/null 2>&1 &
+          ./gradlew connectedDebugAndroidTest
+
+      - name: Stop Emulator
+        if: always()
+        run: adb -s emulator-5554 emu kill > /dev/null 2>&1 &
+
+      - name: Upload UI Tests Exec File
+        uses: actions/upload-artifact@v2
+        with:
+          name: ui-tests-exec
+          path: apiclient/build/outputs/code_coverage/debugAndroidTest/connected/**/*.ec
+
+  danger-coverage:
+    runs-on: ubuntu-latest
+    needs: [ unit-tests, ui-tests ]
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 100
+
+      - name: Download Kotlin classes
+        uses: actions/download-artifact@v2
+        with:
+          name: kotlin-classes
+          path: apiclient/build/tmp/kotlin-classes/debug
+
+      - name: Download Unit Tests Exec File
+        uses: actions/download-artifact@v2
+        with:
+          name: unit-tests-exec
+          path: apiclient/build/jacoco
+
+      - name: Download UI Tests Exec File
+        uses: actions/download-artifact@v2
+        with:
+          name: ui-tests-exec
+          path: apiclient/build/outputs/code_coverage/debugAndroidTest/connected
+
+      - name: Generate Code Coverage Reports
+        run: ./gradlew jacocoTestReport
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: coverage_report
+          path: build/coverage-report
+
+      - name: Danger
+        run: |
+          sudo gem install bundler
+          sudo rm Gemfile.lock
+          sudo bundle install
+          bundle exec danger --dangerfile=danger/coverage.rb --danger_id=coverage --fail-on-errors=true
+        env:
+          DANGER_GITHUB_API_TOKEN: ${{ secrets.DANGER_GITHUB_API_TOKEN }}
+          RUN_ID: ${{ github.run_id }}
+
+      - name: Delete temporary build artifacts
+        uses: GeekyEggo/delete-artifact@v1.0.0
+        if: always()
+        with:
+          name: |
+            kotlin-classes
+            unit-tests-exec
+            ui-tests-exec
+
