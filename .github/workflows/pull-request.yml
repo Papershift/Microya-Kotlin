@@ -63,19 +63,19 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: java-classes
-          path: apiclient/build/intermediates/javac/debug
+          path: microya/build/intermediates/javac/debug
 
       - name: Upload Kotlin classes
         uses: actions/upload-artifact@v2
         with:
           name: kotlin-classes
-          path: apiclient/build/tmp/kotlin-classes/debug
+          path: microya/build/tmp/kotlin-classes/debug
 
       - name: Upload Unit Tests Exec File
         uses: actions/upload-artifact@v2
         with:
           name: unit-tests-exec
-          path: apiclient/build/jacoco/testDebugUnitTest.exec
+          path: microya/build/jacoco/testDebugUnitTest.exec
 
   ui-tests:
     runs-on: [ self-hosted, macOS, arm64 ]
@@ -97,7 +97,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ui-tests-exec
-          path: apiclient/build/outputs/code_coverage/debugAndroidTest/connected/**/*.ec
+          path: microya/build/outputs/code_coverage/debugAndroidTest/connected/**/*.ec
 
   danger-coverage:
     runs-on: ubuntu-latest
@@ -112,19 +112,19 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: kotlin-classes
-          path: apiclient/build/tmp/kotlin-classes/debug
+          path: microya/build/tmp/kotlin-classes/debug
 
       - name: Download Unit Tests Exec File
         uses: actions/download-artifact@v2
         with:
           name: unit-tests-exec
-          path: apiclient/build/jacoco
+          path: microya/build/jacoco
 
       - name: Download UI Tests Exec File
         uses: actions/download-artifact@v2
         with:
           name: ui-tests-exec
-          path: apiclient/build/outputs/code_coverage/debugAndroidTest/connected
+          path: microya/build/outputs/code_coverage/debugAndroidTest/connected
 
       - name: Generate Code Coverage Reports
         run: ./gradlew jacocoTestReport
