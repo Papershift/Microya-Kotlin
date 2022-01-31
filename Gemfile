@@ -17,3 +17,5 @@ gem 'danger-android_lint'
 
 # danger plugin to check against jacoco xml reports
 gem 'danger-jacoco'
+
+gem 'octokit', "4.21.0"
