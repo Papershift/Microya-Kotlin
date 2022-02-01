@@ -10,6 +10,12 @@ apply from: file('jacoco.gradle')
 android {
     compileSdk 31
 
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+        test.java.srcDirs += 'src/test/kotlin'
+        androidTest.java.srcDirs += 'src/androidTest/kotlin'
+    }
+
     defaultConfig {
         minSdk 24
         targetSdk 31
@@ -40,6 +46,15 @@ android {
 
     lintOptions {
         xmlReport true
+    }
+
+    testOptions {
+        animationsDisabled true
+
+        unitTests {
+            includeAndroidResources = true
+            returnDefaultValues = true
+        }
     }
 }
 
