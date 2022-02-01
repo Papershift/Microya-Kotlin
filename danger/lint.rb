@@ -1,11 +1,6 @@
 # Lint commits (see https://github.com/jonallured/danger-commit_lint)
 commit_lint.check
 
-# Check if Design Review is needed for this PR
-if git.modified_files.include? "app/screenshots/**/*.png"
-  warn('Design Review is needed for this PR (screenshot references changed)')
-end
-
 # Run Detekt (see https://github.com/NFesquet/danger-kotlin_detekt)
 kotlin_detekt.gradle_task = 'detekt'
 kotlin_detekt.report_file = 'build/reports/detekt/detekt.xml'
