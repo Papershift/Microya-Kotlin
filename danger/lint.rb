@@ -13,5 +13,5 @@ kotlin_detekt.detekt
 
 # Run Android Lint (see https://github.com/loadsmart/danger-android_lint)
 android_lint.gradle_task = 'lintDebug'
-android_lint.report_file = 'app/build/reports/lint-results-debug.xml'
+android_lint.report_file = 'microya/build/reports/lint-results-debug.xml'
 android_lint.lint
