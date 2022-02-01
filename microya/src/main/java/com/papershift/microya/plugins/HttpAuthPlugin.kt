@@ -2,15 +2,14 @@ package com.papershift.microya.plugins
 
 import com.papershift.microya.core.Endpoint
 import com.papershift.microya.core.Plugin
-import com.papershift.microya.plugins.HttpAuthPlugin.Scheme
 import okhttp3.Request
 import okhttp3.Response
 
 /**
  * Provides support for the HTTP "Authorization" header based on the "Basic" or "Bearer" schemes.
  * See also: https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication
- * @property Scheme is the authentication scheme.
- * @property tokenClosure The closure which returns the access token in case one is available.
+ * @property [scheme] is the authentication scheme.
+ * @property [token] the access token
  */
 class HttpAuthPlugin(val scheme: Scheme, val token: String) : Plugin {
 

@@ -12,7 +12,6 @@ kotlin_detekt.report_file = 'build/reports/detekt/detekt.xml'
 kotlin_detekt.detekt
 
 # Run Android Lint (see https://github.com/loadsmart/danger-android_lint)
-android_lint.gradle_task = 'lintDeltaDebug'
-android_lint.filtering = true
-android_lint.report_file = 'app/build/reports/lint-results-deltaDebug.xml'
+android_lint.gradle_task = 'lintDebug'
+android_lint.report_file = 'app/build/reports/lint-results-debug.xml'
 android_lint.lint
