@@ -15,18 +15,11 @@ complexity:
   LongMethod:
     threshold: 70
 
-formatting:
-  android: true
-  MaximumLineLength:
-    maxLineLength: 200
-
 style:
   ForbiddenComment:
     active: false
   MagicNumber:
     active: false
-  MaxLineLength:
-    maxLineLength: 200
   UnusedPrivateClass:
     active: false
   UnusedPrivateMember:

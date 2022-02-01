@@ -26,8 +26,10 @@ class MockedResponse {
         private set
 
     /**
-     * Initializes a mocked response for testing purposes. Requires at least a status code. Headers and body are optional.
-     * Consider using the convenience [.mock] factory method in the [Endpoint] type instead,  which will detect the [subPath] automatically.
+     * Initializes a mocked response for testing purposes. Requires at least a status code.
+     * Headers and body are optional.
+     * Consider using the convenience [.mock] factory method in the [Endpoint] type instead,
+     * which will detect the [subPath] automatically.
      */
     constructor(
         subPath: String,
@@ -42,8 +44,10 @@ class MockedResponse {
     }
 
     /**
-     * Initializes a mocked response for testing purposes. Requires at least a status code. Headers and body are optional.
-     * Consider using the convenience [.mock] factory method in the [Endpoint] type instead,  which will detect the [subPath] automatically.
+     * Initializes a mocked response for testing purposes. Requires at least a status code.
+     * Headers and body are optional.
+     * Consider using the convenience [.mock] factory method in the [Endpoint] type instead,
+     * which will detect the [subPath] automatically.
      * Provided json will be converted to a [ResponseBody]
      */
     constructor(
@@ -81,7 +85,7 @@ class MockedResponse {
             in 500..599 -> "Server Error"
             else -> throw IllegalArgumentException(
                 "Support for this status code doesn't exist yet. " +
-                        "To add support for it. Please update the MockedResponse class in the API-Client"
+                    "To add support for it, please update the $this class in the API-Client"
             )
         }
     }

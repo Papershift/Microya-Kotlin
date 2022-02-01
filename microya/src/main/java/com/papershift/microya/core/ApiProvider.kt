@@ -3,7 +3,6 @@ package com.papershift.microya.core
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
-import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.serialization.SerializationException
@@ -51,7 +50,7 @@ class ApiProvider private constructor(
 
         /**
          * Sets up the http client used to make api calls.
-         * @param Client http client used to make api calls.
+         * @param [client] http client used to make api calls.
          */
         fun client(client: OkHttpClient) = apply { this.client = client }
 
@@ -98,7 +97,9 @@ class ApiProvider private constructor(
      * @param ClientError is the type [ClientError] returned if the api call fails. This is used to decode the error returned from the server.
      * @return a result containing the [Success] object if successful or a [JsonApiException] in the case of a failure.
      */
-    suspend inline fun <reified Success : Any, reified ClientError : Any> performRequest(endpoint: Endpoint): Result<Success, JsonApiException> {
+    suspend inline fun <reified Success : Any, reified ClientError : Any> performRequest(
+        endpoint: Endpoint
+    ): Result<Success, JsonApiException> {
         if (mockingBehaviour != null) {
             delay(mockingBehaviour.delay.inWholeMilliseconds)
         }
@@ -121,7 +122,7 @@ class ApiProvider private constructor(
                 Err(JsonApiException.EmptyMockedResponse)
             }
         } else {
-            return suspendCancellableCoroutine { continuation: CancellableContinuation<Result<Success, JsonApiException>> ->
+            return suspendCancellableCoroutine { continuation ->
                 client.newCall(request).enqueue(object : Callback {
                     override fun onFailure(call: Call, e: IOException) {
                         if (continuation.isCancelled) return
