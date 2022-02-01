@@ -27,10 +27,8 @@ class HttpAuthPlugin(val scheme: Scheme, val token: String) : Plugin {
     }
 
     override fun beforeRequest(request: Request) {
-        { /** No operation **/ }
     }
 
     override fun <T> afterRequest(response: Response, typedResult: T?, endpoint: Endpoint) {
-        { /** No operation **/ }
     }
 }
