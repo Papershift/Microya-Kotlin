@@ -1,0 +1,64 @@
+name: Pull Request
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  cancel-previous-runs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Cancel previous runs of this workflow on same branch
+        uses: rokroskar/workflow-run-cleanup-action@v0.2.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  danger-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 100
+
+      - name: Bundle Install
+        run: |
+          sudo gem install bundler
+          sudo rm Gemfile.lock
+          sudo bundle install
+
+      - name: Danger Lint (remote)
+        run: |
+          curl -o danger/pr_git_conventions.rb 'https://raw.githubusercontent.com/Papershift/Mobile-Lint/main/Shared/Danger/pr_git_conventions.rb'
+          bundle exec danger --dangerfile=danger/pr_git_conventions.rb --danger_id=pr_git_conventions --fail-on-errors=true
+        env:
+          DANGER_GITHUB_API_TOKEN: ${{ secrets.DANGER_API_TOKEN }}
+
+      - name: Danger Lint (local)
+        if: always()
+        run: bundle exec danger --dangerfile=danger/lint.rb --danger_id=lint --fail-on-errors=true
+        env:
+          DANGER_GITHUB_API_TOKEN: ${{ secrets.DANGER_API_TOKEN }}
+
+  integration-tests:
+    runs-on: [ self-hosted, macOS, arm64 ]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Start Emulatur & Run Integration tests
+        run: |
+          adb -s emulator-5554 emu kill > /dev/null 2>&1 &
+          $ANDROID_HOME/emulator/emulator -avd PIXEL_XL_API_30 -no-boot-anim -no-audio -no-snapshot > /dev/null 2>&1 &
+          ./gradlew connectedDebugAndroidTest
+
+      - name: Stop Emulator
+        if: always()
+        run: adb -s emulator-5554 emu kill > /dev/null 2>&1 &
+
+      - name: Upload Integration Tests Exec File
+        uses: actions/upload-artifact@v2
+        with:
+          name: integration-tests-exec
+          path: microya/build/outputs/code_coverage/debugAndroidTest/connected/**/*.ec

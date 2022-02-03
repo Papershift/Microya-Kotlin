@@ -3,7 +3,6 @@ package com.papershift.microya.core
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
-import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.serialization.SerializationException
@@ -51,7 +50,7 @@ class ApiProvider private constructor(
 
         /**
          * Sets up the http client used to make api calls.
-         * @param Client http client used to make api calls.
+         * @param [client] http client used to make api calls.
          */
         fun client(client: OkHttpClient) = apply { this.client = client }
 
@@ -67,7 +66,8 @@ class ApiProvider private constructor(
          * Use null to make actual requests to your server (the default).
          * @param mockingBehaviour is the user defined mocking behaviour of the API provider.
          */
-        fun mockingBehaviour(mockingBehaviour: MockingBehaviour<Endpoint>?) = apply { this.mockingBehaviour = mockingBehaviour }
+        fun mockingBehaviour(mockingBehaviour: MockingBehaviour<Endpoint>?) =
+            apply { this.mockingBehaviour = mockingBehaviour }
 
         /**
          * Sets up  the json serializer used for serialising json requests.
@@ -81,7 +81,8 @@ class ApiProvider private constructor(
          */
         fun responseJsonFormatter(json: Json) = apply { this.responseJsonFormatter = json }
 
-        fun build() = ApiProvider(requireNotNull(baseUrl) { "Base URL should not be null." },
+        fun build() = ApiProvider(
+            requireNotNull(baseUrl) { "Base URL should not be null." },
             requireNotNull(client) { "Client should not be null." },
             plugins,
             mockingBehaviour,
@@ -96,7 +97,9 @@ class ApiProvider private constructor(
      * @param ClientError is the type [ClientError] returned if the api call fails. This is used to decode the error returned from the server.
      * @return a result containing the [Success] object if successful or a [JsonApiException] in the case of a failure.
      */
-    suspend inline fun <reified Success : Any, reified ClientError : Any> performRequest(endpoint: Endpoint): Result<Success, JsonApiException> {
+    suspend inline fun <reified Success : Any, reified ClientError : Any> performRequest(
+        endpoint: Endpoint
+    ): Result<Success, JsonApiException> {
         if (mockingBehaviour != null) {
             delay(mockingBehaviour.delay.inWholeMilliseconds)
         }
@@ -111,14 +114,15 @@ class ApiProvider private constructor(
         }
         // Returns mocked responses if mocking behaviour is turned on.
         if (mockingBehaviour != null) {
-            val mockedResponse = mockingBehaviour.mockResponseProvider(endpoint)?.httpUrlResponse(baseUrl)
+            val mockedResponse =
+                mockingBehaviour.mockResponseProvider(endpoint)?.httpUrlResponse(baseUrl)
             return if (mockedResponse != null) {
                 decodeResponse<Success, ClientError>(mockedResponse, endpoint)
             } else {
                 Err(JsonApiException.EmptyMockedResponse)
             }
         } else {
-            return suspendCancellableCoroutine { continuation: CancellableContinuation<Result<Success, JsonApiException>> ->
+            return suspendCancellableCoroutine { continuation ->
                 client.newCall(request).enqueue(object : Callback {
                     override fun onFailure(call: Call, e: IOException) {
                         if (continuation.isCancelled) return
@@ -140,14 +144,18 @@ class ApiProvider private constructor(
         }
     }
 
-    inline fun <reified Success, reified ClientError> decodeResponse(response: Response, endpoint: Endpoint): Result<Success, JsonApiException> {
+    inline fun <reified Success, reified ClientError> decodeResponse(
+        response: Response,
+        endpoint: Endpoint
+    ): Result<Success, JsonApiException> {
         return when (response.code) {
             in 200..299 -> {
                 if (response.body != null) {
                     try {
                         val responseBody = response.body!!.string()
                         if (responseBody.isNotEmpty()) {
-                            val typedResult: Success = responseJsonFormatter.decodeFromString(responseBody)
+                            val typedResult: Success =
+                                responseJsonFormatter.decodeFromString(responseBody)
                             onRequestComplete(response, typedResult, endpoint)
                             Ok(typedResult)
                         } else {
