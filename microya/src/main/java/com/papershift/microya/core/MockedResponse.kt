@@ -26,10 +26,17 @@ class MockedResponse {
         private set
 
     /**
-     * Initializes a mocked response for testing purposes. Requires at least a status code. Headers and body are optional.
-     * Consider using the convenience [.mock] factory method in the [Endpoint] type instead,  which will detect the [subPath] automatically.
+     * Initializes a mocked response for testing purposes. Requires at least a status code.
+     * Headers and body are optional.
+     * Consider using the convenience [.mock] factory method in the [Endpoint] type instead,
+     * which will detect the [subPath] automatically.
      */
-    constructor(subPath: String, statusCode: Int, responseBody: ResponseBody?, headers: Map<String, String> = emptyMap()) {
+    constructor(
+        subPath: String,
+        statusCode: Int,
+        responseBody: ResponseBody?,
+        headers: Map<String, String> = emptyMap()
+    ) {
         this.subPath = subPath
         this.statusCode = statusCode
         this.responseBody = responseBody
@@ -37,18 +44,26 @@ class MockedResponse {
     }
 
     /**
-     * Initializes a mocked response for testing purposes. Requires at least a status code. Headers and body are optional.
-     * Consider using the convenience [.mock] factory method in the [Endpoint] type instead,  which will detect the [subPath] automatically.
+     * Initializes a mocked response for testing purposes. Requires at least a status code.
+     * Headers and body are optional.
+     * Consider using the convenience [.mock] factory method in the [Endpoint] type instead,
+     * which will detect the [subPath] automatically.
      * Provided json will be converted to a [ResponseBody]
      */
-    constructor(subPath: String, statusCode: Int, bodyJson: String?, headers: Map<String, String> = emptyMap()) {
+    constructor(
+        subPath: String,
+        statusCode: Int,
+        bodyJson: String?,
+        headers: Map<String, String> = emptyMap()
+    ) {
         this.subPath = subPath
         this.statusCode = statusCode
         this.responseBody = bodyJson?.toResponseBody()
         this.headers = headers
     }
 
-    fun buildUrl(baseUrl: String): HttpUrl = baseUrl.toHttpUrl().newBuilder().addEncodedPathSegments(subPath).build()
+    fun buildUrl(baseUrl: String): HttpUrl =
+        baseUrl.toHttpUrl().newBuilder().addEncodedPathSegments(subPath).build()
 
     fun httpUrlResponse(url: String): Response = Response.Builder().apply {
         this.code(statusCode)
@@ -70,7 +85,7 @@ class MockedResponse {
             in 500..599 -> "Server Error"
             else -> throw IllegalArgumentException(
                 "Support for this status code doesn't exist yet. " +
-                        "To add support for it. Please update the MockedResponse class in the API-Client"
+                    "To add support for it, please update the $this class in the API-Client"
             )
         }
     }
