@@ -7,6 +7,12 @@ plugins {
 android {
     compileSdk 31
 
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+        test.java.srcDirs += 'src/test/kotlin'
+        androidTest.java.srcDirs += 'src/androidTest/kotlin'
+    }
+
     defaultConfig {
         minSdk 24
         targetSdk 31
