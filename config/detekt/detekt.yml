@@ -1,0 +1,32 @@
+complexity:
+  LongParameterList:
+    constructorThreshold: 12
+    functionThreshold: 12
+  NestedBlockDepth:
+    threshold: 5
+  TooManyFunctions:
+    thresholdInFiles: 17
+    thresholdInClasses: 17
+    thresholdInInterfaces: 17
+    thresholdInObjects: 17
+    thresholdInEnums: 17
+    ignorePrivate: true
+    ignoreOverridden: true
+  LongMethod:
+    threshold: 70
+
+style:
+  ForbiddenComment:
+    active: false
+  MagicNumber:
+    active: false
+  UnusedPrivateClass:
+    active: false
+  UnusedPrivateMember:
+    active: false
+    allowedNames: "(_|ignored|expected|serialVersionUID)"
+
+exceptions:
+  active: true
+  TooGenericExceptionCaught:
+    active: false
