@@ -50,7 +50,7 @@ jobs:
       - name: Start Emulatur & Run UI tests
         uses: ReactiveCircus/android-emulator-runner@v2.22.0
         with:
-          api-level: 30
+          api-level: 29
           script: ./gradlew connectedDebugAndroidTest
 
       - name: Upload UI Tests Exec File
