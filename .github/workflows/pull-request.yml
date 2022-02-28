@@ -48,7 +48,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Start Emulatur & Run UI tests
-        uses: ReactiveCircus/android-emulator-runner@v2.23.0
+        uses: ReactiveCircus/android-emulator-runner@v2.22.0
         with:
           api-level: 30
           script: ./gradlew connectedDebugAndroidTest
