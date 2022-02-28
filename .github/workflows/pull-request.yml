@@ -45,7 +45,7 @@ jobs:
     runs-on: [ self-hosted, macOS, arm64 ]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.4.0
 
       - name: Start Emulatur & Run Integration tests
         run: |
