@@ -11,12 +11,18 @@ import okhttp3.Response
 - inject additional information into a request (like for authentication)
  */
 interface Plugin {
-    // Called to modify a request before sending.
+    /**
+     * Called to modify a request before sending.
+     */
     fun modifyRequest(request: Request, endpoint: Endpoint): Request
 
-    // Called immediately before a request is sent.
+    /**
+     * Called immediately before a request is sent.
+     */
     fun beforeRequest(request: Request)
 
-    // Called after a response has been received & decoded, but before calling the completion handler.
+    /**
+     * Called after a response has been received & decoded, but before calling the completion handler.
+     */
     fun <T> afterRequest(response: Response, typedResult: T? = null, endpoint: Endpoint)
 }
