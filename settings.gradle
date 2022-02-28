@@ -5,5 +5,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "Microya-Kotlin"
+rootProject.name = 'Microya-Kotlin'
 include ':microya'
