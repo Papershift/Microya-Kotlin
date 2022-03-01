@@ -42,23 +42,13 @@ jobs:
           DANGER_GITHUB_API_TOKEN: ${{ secrets.DANGER_API_TOKEN }}
 
   integration-tests:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     steps:
       - uses: actions/checkout@v2
 
-      - name: Start Emulatur & Run Integration tests
-        run: |
-          adb -s emulator-5554 emu kill > /dev/null 2>&1 &
-          $ANDROID_HOME/emulator/emulator -avd PIXEL_XL_API_30 -no-boot-anim -no-audio -no-snapshot > /dev/null 2>&1 &
-          ./gradlew connectedDebugAndroidTest
-
-      - name: Stop Emulator
-        if: always()
-        run: adb -s emulator-5554 emu kill > /dev/null 2>&1 &
-
-      - name: Upload Integration Tests Exec File
-        uses: actions/upload-artifact@v2
+      - name: Start Emulatur & Run UI tests
+        uses: ReactiveCircus/android-emulator-runner@v2.23.0
         with:
-          name: integration-tests-exec
-          path: microya/build/outputs/code_coverage/debugAndroidTest/connected/**/*.ec
+          api-level: 29
+          script: ./gradlew connectedDebugAndroidTest
