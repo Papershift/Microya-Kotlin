@@ -128,8 +128,8 @@ Microya-Kotlin returns a `JsonApiException` when the request is unsuccessful. Yo
 
 ### Step 3b: Multipart File Upload
 
-Microya-Kotlin supports file uploads using multipart requests. To perform multipart request with Microya-kotlin. You'll need to use the `performUploadRequest` function.
-For example, here's how to upload an image to imgur with microya.
+Microya-Kotlin supports file uploads using multipart requests. To perform multipart request with Microya-kotlin, you'll need to use the `performUploadRequest` function.
+For example, here's how to upload an image to Imgur with Microya-Kotlin.
 
 Make the uploadRequest using `performUploadRequest`.
 ```kotlin
@@ -214,8 +214,6 @@ ApiProvider.Builder().baseUrl("https://postman-echo.com")
     })
     .build()
 ```
-
-add upload file
 ## Contributing
 
 See the file [CONTRIBUTING.md](https://github.com/Papershift/Microya-Kotlin/blob/main/CONTRIBUTING.md).
