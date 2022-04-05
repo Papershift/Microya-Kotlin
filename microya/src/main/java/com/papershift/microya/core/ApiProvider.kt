@@ -132,15 +132,15 @@ class ApiProvider private constructor(
         request: Request,
         endpoint: Endpoint
     ): Request {
-        var request1 = request
+        var newRequest = request
         for (plugin in plugins) {
             // Kotlin doesn't have the cool inout feature in swift. So i am mutating the request here.
-            request1 = plugin.modifyRequest(request1, endpoint)
+            newRequest = plugin.modifyRequest(newRequest, endpoint)
         }
         for (plugin in plugins) {
-            plugin.beforeRequest(request1)
+            plugin.beforeRequest(newRequest)
         }
-        return request1
+        return newRequest
     }
 
     suspend fun setDelay(mockingBehaviour: MockingBehaviour<Endpoint>?) {

@@ -17,7 +17,7 @@ import java.net.URLConnection
 data class FileDataPart(
     val file: File,
     val name: String = file.nameWithoutExtension,
-    private val mediaType: MediaType? = URLConnection.guessContentTypeFromName(file.name)
+    val mediaType: MediaType? = URLConnection.guessContentTypeFromName(file.name)
         ?.toMediaTypeOrNull()
 ) {
     init {
