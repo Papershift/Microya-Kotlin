@@ -130,11 +130,51 @@ Microya-Kotlin returns a `JsonApiException` when the request is unsuccessful. Yo
 
 Microya-Kotlin supports file uploads using multipart requests. To perform multipart request with Microya-kotlin, you'll need to use the `performUploadRequest` function.
 For example, here's how to upload an image to Imgur with Microya-Kotlin.
+Model you request class. The request class takes a list of `FileDataPart`. These are file parts to be included in multipart request.
+Take note of the `@Transient` annotation. This means the `fileDataParts` won't be serialized. The `fileDataParts` would be included in a multipart request by Microya-Kotlin.
+
+```kotlin
+@Serializable
+data class UploadImageRequest(
+    val title: String,
+    val description: String,
+    @Transient
+    val fileDataParts: List<FileDataPart> = emptyList()
+)
+```
+
+Next step is modeling the ImgurEndpoint. The only difference between endpoint with file uploads and normal endpoints is the `fileDataParts` variable. Endpoints with uploads override this variable.
+
+```kotlin
+sealed class ImgurEndpoint : Endpoint() {
+    data class UploadImageEndpoint(val body: UploadImageRequest) : ImgurEndpoint()
+    override val subpath: String
+        get() = when (this) {
+            is UploadImageEndpoint -> "3/image"
+        }
+    override val method: HttpMethod
+        get() = when (this) {
+            is UploadImageEndpoint -> HttpMethod.Post(body)
+        }
+    override val headers: Map<String, String>
+        get() = emptyMap()
+    override val queryParameters: Map<String, String>
+        get() = emptyMap()
+    override val mockedResponse: MockedResponse?
+        get() = null
+    override val fileDataParts: List<FileDataPart>
+        get() = when (this) {
+            is UploadImageEndpoint -> body.fileDataParts
+        }
+}
+```
 
 Make the uploadRequest using `performUploadRequest`.
 ```kotlin
-   val fileDataParts = listOf(FileDataPart(file = getImage(), name = "image"))
-   performUploadRequest<ImgurResponse<UploadSuccessResponse>, ImgurResponse<ImgurErrorResponse>>(uploadEndpoint,fileDataParts).get()!!
+  val result: ImgurResponse<ImgurSuccessData> =
+                uploadFileSampleApiProvider.performUploadRequest<ImgurResponse<ImgurSuccessData>, ImgurResponse<ImgurErrorData>>(
+                                 uploadEndpoint
+                             ).get()!!
 ```
 
 ### Plugins
