@@ -11,6 +11,7 @@ import kotlinx.serialization.json.Json
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
+import okhttp3.Request
 import okhttp3.Response
 import java.io.IOException
 import kotlin.coroutines.resume
@@ -100,41 +101,70 @@ class ApiProvider private constructor(
     suspend inline fun <reified Success : Any, reified ClientError : Any> performRequest(
         endpoint: Endpoint
     ): Result<Success, JsonApiException> {
+        setDelay(mockingBehaviour)
+        var request = endpoint.buildRequest(baseUrl, requestJsonFormatter)
+        request = registerPlugins(request, endpoint)
+        // Returns mocked responses if mocking behaviour is turned on.
+        return if (mockingBehaviour != null) {
+            callMockedEndpoint<Success, ClientError>(
+                mockingBehaviour,
+                endpoint
+            )
+        } else {
+            callEndpoint<Success, ClientError>(request, endpoint)
+        }
+    }
+
+    inline fun <reified Success : Any, reified ClientError : Any> callMockedEndpoint(
+        mockingBehaviour: MockingBehaviour<Endpoint>,
+        endpoint: Endpoint
+    ): Result<Success, JsonApiException> {
+        val mockedResponse =
+            mockingBehaviour.mockResponseProvider(endpoint)?.httpUrlResponse(baseUrl)
+        return if (mockedResponse != null) {
+            decodeResponse<Success, ClientError>(mockedResponse, endpoint)
+        } else {
+            Err(JsonApiException.EmptyMockedResponse)
+        }
+    }
+
+    fun registerPlugins(
+        request: Request,
+        endpoint: Endpoint
+    ): Request {
+        var request1 = request
+        for (plugin in plugins) {
+            // Kotlin doesn't have the cool inout feature in swift. So i am mutating the request here.
+            request1 = plugin.modifyRequest(request1, endpoint)
+        }
+        for (plugin in plugins) {
+            plugin.beforeRequest(request1)
+        }
+        return request1
+    }
+
+    suspend fun setDelay(mockingBehaviour: MockingBehaviour<Endpoint>?) {
         if (mockingBehaviour != null) {
             delay(mockingBehaviour.delay.inWholeMilliseconds)
         }
+    }
 
-        var request = endpoint.buildRequest(baseUrl, requestJsonFormatter)
-        for (plugin in plugins) {
-            // Kotlin doesn't have the cool inout feature in swift. So i am mutating the request here.
-            request = plugin.modifyRequest(request, endpoint)
-        }
-        for (plugin in plugins) {
-            plugin.beforeRequest(request)
-        }
-        // Returns mocked responses if mocking behaviour is turned on.
-        if (mockingBehaviour != null) {
-            val mockedResponse =
-                mockingBehaviour.mockResponseProvider(endpoint)?.httpUrlResponse(baseUrl)
-            return if (mockedResponse != null) {
-                decodeResponse<Success, ClientError>(mockedResponse, endpoint)
-            } else {
-                Err(JsonApiException.EmptyMockedResponse)
-            }
-        } else {
-            return suspendCancellableCoroutine { continuation ->
-                client.newCall(request).enqueue(object : Callback {
-                    override fun onFailure(call: Call, e: IOException) {
-                        if (continuation.isCancelled) return
-                        continuation.resume(Err(JsonApiException.UnexpectedException(e)))
-                    }
+    suspend inline fun <reified Success : Any, reified ClientError : Any> callEndpoint(
+        request: Request,
+        endpoint: Endpoint
+    ): Result<Success, JsonApiException> {
+        return suspendCancellableCoroutine { continuation ->
+            client.newCall(request).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    if (continuation.isCancelled) return
+                    continuation.resume(Err(JsonApiException.UnexpectedException(e)))
+                }
 
-                    override fun onResponse(call: Call, response: Response) {
-                        val result = decodeResponse<Success, ClientError>(response, endpoint)
-                        continuation.resume(result)
-                    }
-                })
-            }
+                override fun onResponse(call: Call, response: Response) {
+                    val result = decodeResponse<Success, ClientError>(response, endpoint)
+                    continuation.resume(result)
+                }
+            })
         }
     }
 
@@ -201,6 +231,22 @@ class ApiProvider private constructor(
                 onRequestComplete(response, null, endpoint)
                 Err(JsonApiException.UnexpectedStatusCode(statusCode = response.code))
             }
+        }
+    }
+
+    suspend inline fun <reified Success : Any, reified ClientError : Any> performUploadRequest(
+        endpoint: Endpoint
+    ): Result<Success, JsonApiException> {
+        setDelay(mockingBehaviour)
+        var request = endpoint.buildMultipartRequest(baseUrl, requestJsonFormatter)
+        request = registerPlugins(request, endpoint)
+        return if (mockingBehaviour != null) {
+            callMockedEndpoint<Success, ClientError>(
+                mockingBehaviour,
+                endpoint
+            )
+        } else {
+            callEndpoint<Success, ClientError>(request, endpoint)
         }
     }
 }

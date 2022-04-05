@@ -172,21 +172,20 @@ abstract class Endpoint {
                 fileDataPart.asRequestBody()
             )
         }
-
-        when (val value = method) {
+        when (val httpMethod = method) {
             is HttpMethod.Patch<*> -> {
                 val multipartBody =
-                    buildMultiPartFromJson(requestJsonFormatter, value.body!!, multiPartBuilder)
+                    buildMultiPartFromJson(requestJsonFormatter, httpMethod.body!!, multiPartBuilder)
                 requestBuilder.patch(multipartBody)
             }
             is HttpMethod.Post<*> -> {
                 val multipartBody =
-                    buildMultiPartFromJson(requestJsonFormatter, value.body!!, multiPartBuilder)
+                    buildMultiPartFromJson(requestJsonFormatter, httpMethod.body!!, multiPartBuilder)
                 requestBuilder.post(multipartBody)
             }
             is HttpMethod.Put<*> -> {
                 val multipartBody =
-                    buildMultiPartFromJson(requestJsonFormatter, value.body!!, multiPartBuilder)
+                    buildMultiPartFromJson(requestJsonFormatter, httpMethod.body!!, multiPartBuilder)
                 requestBuilder.put(multipartBody)
             }
             else -> {
