@@ -238,14 +238,13 @@ class ApiProvider private constructor(
      * Makes a multipart network request using the endpoint provided.
      * @param Success is the type object returned if the api call is successful.
      * @param ClientError is the type [ClientError] returned if the api call fails. This is used to decode the error returned from the server.
-     * @param fileDataParts is the files to included in a multipart request.
      * @return a result containing the [Success] object if successful or a [JsonApiException] in the case of a failure.
      */
     suspend inline fun <reified Success : Any, reified ClientError : Any> performUploadRequest(
-        endpoint: Endpoint, fileDataParts: List<FileDataPart>
+        endpoint: Endpoint
     ): Result<Success, JsonApiException> {
         setDelay(mockingBehaviour)
-        var request = endpoint.buildMultipartRequest(baseUrl, requestJsonFormatter, fileDataParts)
+        var request = endpoint.buildMultipartRequest(baseUrl, requestJsonFormatter)
         request = registerPlugins(request, endpoint)
         return if (mockingBehaviour != null) {
             callMockedEndpoint<Success, ClientError>(

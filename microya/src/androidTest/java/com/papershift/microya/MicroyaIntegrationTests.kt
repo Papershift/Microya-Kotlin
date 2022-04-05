@@ -235,14 +235,14 @@ class MicroyaIntegrationTests {
         runBlocking {
             val fileDataPart = FileDataPart(file = getImage(), name = "image")
             val uploadImageRequest = UploadImageRequest(
-                "japan", "japan summer"
+                "japan", "japan summer", listOf(fileDataPart)
             )
             val uploadEndpoint = ImgurEndpoint.UploadImageEndpoint(
-                uploadImageRequest
+                uploadImageRequest,
             )
             val result: ImgurResponse<ImgurSuccessData> =
                 uploadFileSampleApiProvider.performUploadRequest<ImgurResponse<ImgurSuccessData>, ImgurResponse<ImgurErrorData>>(
-                    uploadEndpoint, listOf(fileDataPart)
+                    uploadEndpoint
                 ).get()!!
 
             Assert.assertEquals(

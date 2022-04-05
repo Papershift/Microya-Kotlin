@@ -46,6 +46,12 @@ abstract class Endpoint {
      *  when [ApiProvider] [mockingBehavior] is set.
      */
     abstract val mockedResponse: MockedResponse?
+
+    /**
+     * The files to included in a multipart request. Defaults to an empty list for Endpoints that make normal requests.
+     */
+    open val fileDataParts: List<FileDataPart> = emptyList()
+
     /**
      * Builds the request to be sent to the server
      * @param baseUrl is the base url of the request.
@@ -153,11 +159,10 @@ abstract class Endpoint {
      * Builds a multipart request to be sent to the server
      * @param baseUrl is the base url of the request.
      * @param requestJsonFormatter is the [Json] formatter used to encode models to JSON.
-     * @param fileDataParts is the files to included in a multipart request.
      * @return is the formed request containing the base url, header and body to be sent to the
      * server.
      */
-    fun buildMultipartRequest(baseUrl: String, requestJsonFormatter: Json, fileDataParts: List<FileDataPart>): Request {
+    fun buildMultipartRequest(baseUrl: String, requestJsonFormatter: Json): Request {
         val requestBuilder = addHeaders(baseUrl)
         val multiPartBuilder = MultipartBody.Builder().setType(MultipartBody.FORM)
         fileDataParts.forEach { fileDataPart: FileDataPart ->
