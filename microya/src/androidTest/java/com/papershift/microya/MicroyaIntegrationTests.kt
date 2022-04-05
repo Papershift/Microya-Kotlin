@@ -8,20 +8,18 @@ import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.github.michaelbull.result.get
 import com.github.michaelbull.result.getError
-import com.github.michaelbull.result.onFailure
-import com.github.michaelbull.result.onSuccess
 import com.papershift.microya.core.EmptyBodyResponse
 import com.papershift.microya.core.FileDataPart
 import com.papershift.microya.supporting.FooBar
 import com.papershift.microya.supporting.ImgurEndpoint
-import com.papershift.microya.supporting.ImgurErrorResponse
+import com.papershift.microya.supporting.ImgurErrorData
 import com.papershift.microya.supporting.ImgurResponse
 import com.papershift.microya.supporting.PostmanEchoEndpoint
 import com.papershift.microya.supporting.PostmanEchoError
 import com.papershift.microya.supporting.PostmanEchoResponse
 import com.papershift.microya.supporting.TestDataStore
 import com.papershift.microya.supporting.UploadImageRequest
-import com.papershift.microya.supporting.UploadSuccessResponse
+import com.papershift.microya.supporting.ImgurSuccessData
 import com.papershift.microya.supporting.mockedImmediateApiProvider
 import com.papershift.microya.supporting.mockedWithCustomResponseApiProvider
 import com.papershift.microya.supporting.sampleApiProvider
@@ -33,10 +31,8 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.File
-import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.lang.IllegalArgumentException
 
@@ -244,8 +240,8 @@ class MicroyaIntegrationTests {
             val uploadEndpoint = ImgurEndpoint.UploadImageEndpoint(
                 uploadImageRequest
             )
-            val result: ImgurResponse<UploadSuccessResponse> =
-                uploadFileSampleApiProvider.performUploadRequest<ImgurResponse<UploadSuccessResponse>, ImgurResponse<ImgurErrorResponse>>(
+            val result: ImgurResponse<ImgurSuccessData> =
+                uploadFileSampleApiProvider.performUploadRequest<ImgurResponse<ImgurSuccessData>, ImgurResponse<ImgurErrorData>>(
                     uploadEndpoint, listOf(fileDataPart)
                 ).get()!!
 

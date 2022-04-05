@@ -5,7 +5,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class UploadSuccessResponse(
+data class ImgurSuccessData(
     @SerialName("account_id")
     val accountId: Int?,
     @SerialName("account_url")

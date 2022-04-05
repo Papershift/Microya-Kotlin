@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 
 @Serializable
-data class ImgurErrorResponse(
+data class ImgurErrorData(
     @SerialName("error")
     val error: String,
     @SerialName("method")
