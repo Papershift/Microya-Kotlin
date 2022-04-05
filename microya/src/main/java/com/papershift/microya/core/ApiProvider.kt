@@ -126,7 +126,7 @@ class ApiProvider private constructor(
                 client.newCall(request).enqueue(object : Callback {
                     override fun onFailure(call: Call, e: IOException) {
                         if (continuation.isCancelled) return
-                        continuation.resume(Err(JsonApiException.NoResponseReceived))
+                        continuation.resume(Err(JsonApiException.UnexpectedException(e)))
                     }
 
                     override fun onResponse(call: Call, response: Response) {
