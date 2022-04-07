@@ -7,6 +7,7 @@ on:
 env:
   PROJECT_NAME: Microya-Kotlin
 
+
 jobs:
 
   detekt:
@@ -56,7 +57,8 @@ jobs:
 
   integration-tests:
     runs-on: macos-latest
-
+    env:
+      IMGUR_API_KEY: ${{ secrets.IMGUR_API_KEY }}
     steps:
       - uses: actions/checkout@v2
 

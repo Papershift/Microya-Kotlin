@@ -1,5 +1,6 @@
 package com.papershift.microya.supporting
 
+import com.papershift.microya.BuildConfig
 import com.papershift.microya.core.ApiProvider
 import com.papershift.microya.plugins.HttpAuthPlugin
 import com.papershift.microya.core.EmptyBodyResponse
@@ -67,7 +68,7 @@ val uploadFileSampleApiProvider = ApiProvider.Builder().baseUrl("https://api.img
     .client(OkHttpClient())
     .plugins(
         listOf(
-            HttpAuthPlugin(HttpAuthPlugin.Scheme.CUSTOM, "Client-ID 8197ec77d23352a"),
+            HttpAuthPlugin(HttpAuthPlugin.Scheme.CUSTOM, "Client-ID ${BuildConfig.IMGUR_API_KEY}"),
             RequestLoggerPlugin {
                 TestDataStore.request = it
             },

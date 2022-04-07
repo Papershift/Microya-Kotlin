@@ -6,9 +6,7 @@ import kotlinx.serialization.Transient
 
 @Serializable
 data class UploadImageRequest(
-    @Transient
     val title: String = "",
-    @Transient
     val description: String = "",
     @Transient
     val fileDataParts: List<FileDataPart> = emptyList()

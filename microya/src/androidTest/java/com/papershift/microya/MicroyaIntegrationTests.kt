@@ -246,7 +246,7 @@ class MicroyaIntegrationTests {
                 ).get()!!
 
             Assert.assertEquals(
-                "Client-ID 8197ec77d23352a",
+                "Client-ID ${BuildConfig.IMGUR_API_KEY}",
                 TestDataStore.request?.header("Authorization")
             )
             Assert.assertEquals("POST", TestDataStore.request?.method)

@@ -3,6 +3,10 @@ plugins {
     id 'kotlin-android'
     id 'kotlinx-serialization'
 }
+// loads the secrets from the given file
+def secretPropertyFile = rootProject.file('secrets.properties')
+def secretProperties = new Properties()
+secretProperties.load(new FileInputStream(secretPropertyFile))
 
 android {
     compileSdk 31
@@ -19,6 +23,7 @@ android {
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         consumerProguardFiles 'consumer-rules.pro'
+        buildConfigField('String', 'IMGUR_API_KEY', "\"${System.getenv('IMGUR_API_KEY')}\"" ?: secretProperties['IMGUR_API_KEY']) // AnyLint.skipHere: SingleQuoteStringsGradle
     }
 
     buildTypes {
