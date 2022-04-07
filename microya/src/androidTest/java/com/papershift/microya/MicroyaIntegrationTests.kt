@@ -12,14 +12,14 @@ import com.papershift.microya.core.EmptyBodyResponse
 import com.papershift.microya.core.FileDataPart
 import com.papershift.microya.supporting.FooBar
 import com.papershift.microya.supporting.ImgurEndpoint
-import com.papershift.microya.supporting.ImgurErrorData
-import com.papershift.microya.supporting.ImgurResponse
+import com.papershift.microya.supporting.ImgurErrorResponse
+import com.papershift.microya.supporting.ImgurResult
 import com.papershift.microya.supporting.PostmanEchoEndpoint
 import com.papershift.microya.supporting.PostmanEchoError
 import com.papershift.microya.supporting.PostmanEchoResponse
 import com.papershift.microya.supporting.TestDataStore
 import com.papershift.microya.supporting.UploadImageRequest
-import com.papershift.microya.supporting.ImgurSuccessData
+import com.papershift.microya.supporting.ImgurSuccessResponse
 import com.papershift.microya.supporting.mockedImmediateApiProvider
 import com.papershift.microya.supporting.mockedWithCustomResponseApiProvider
 import com.papershift.microya.supporting.sampleApiProvider
@@ -240,8 +240,8 @@ class MicroyaIntegrationTests {
             val uploadEndpoint = ImgurEndpoint.UploadImageEndpoint(
                 uploadImageRequest,
             )
-            val result: ImgurResponse<ImgurSuccessData> =
-                uploadFileSampleApiProvider.performUploadRequest<ImgurResponse<ImgurSuccessData>, ImgurResponse<ImgurErrorData>>(
+            val result: ImgurResult<ImgurSuccessResponse> =
+                uploadFileSampleApiProvider.performUploadRequest<ImgurResult<ImgurSuccessResponse>, ImgurResult<ImgurErrorResponse>>(
                     uploadEndpoint
                 ).get()!!
 

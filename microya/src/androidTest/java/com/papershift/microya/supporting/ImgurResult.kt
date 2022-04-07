@@ -5,7 +5,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ImgurResponse<T>(
+data class ImgurResult<T>(
     @SerialName("data")
     val data: T,
     @SerialName("status")
