@@ -165,7 +165,7 @@ abstract class Endpoint {
     fun buildMultipartRequest(baseUrl: String, requestJsonFormatter: Json): Request {
         val requestBuilder = addHeaders(baseUrl)
         val multiPartBuilder = MultipartBody.Builder().setType(MultipartBody.FORM)
-        fileDataParts.forEach { fileDataPart: FileDataPart ->
+        for (fileDataPart: FileDataPart in fileDataParts) {
             multiPartBuilder.addFormDataPart(
                 fileDataPart.name,
                 fileDataPart.file.nameWithoutExtension,
@@ -201,7 +201,7 @@ abstract class Endpoint {
         multiPartBuilder: MultipartBody.Builder
     ): MultipartBody {
         val encodedJson = encodeData(requestJsonFormatter, body)
-        encodedJson.forEach {
+        for (it in encodedJson) {
             multiPartBuilder.addFormDataPart(it.key, it.value.toString())
         }
         return multiPartBuilder.build()
