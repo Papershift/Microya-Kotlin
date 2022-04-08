@@ -5,10 +5,11 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 
-object PostmanSerializer {
+object Serializer {
     private val module = SerializersModule {
         polymorphic(Any::class) {
             subclass(FooBar::class)
+            subclass(UploadImageRequest::class)
         }
     }
 

@@ -4,11 +4,14 @@ import kotlinx.serialization.PolymorphicSerializer
 import kotlinx.serialization.Serializer
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.modules.SerializersModule
 import okhttp3.HttpUrl.Companion.toHttpUrl
+import okhttp3.MultipartBody
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import java.lang.IllegalArgumentException
 import java.net.URL
 
 /**  Defines the structure of a JSON based API endpoint collection. */
@@ -45,6 +48,11 @@ abstract class Endpoint {
     abstract val mockedResponse: MockedResponse?
 
     /**
+     * The files to included in a multipart request. Defaults to an empty list for Endpoints that make normal requests.
+     */
+    open val fileDataParts: List<FileDataPart> = emptyList()
+
+    /**
      * Builds the request to be sent to the server
      * @param baseUrl is the base url of the request.
      * @param requestJsonFormatter is the [Json] formatter used to encode models to JSON.
@@ -52,11 +60,7 @@ abstract class Endpoint {
      * server.
      */
     fun buildRequest(baseUrl: String, requestJsonFormatter: Json): Request {
-        val buildRequestUrl = buildRequestUrl(baseUrl)
-        val requestBuilder = Request.Builder().url(buildRequestUrl)
-        for ((name, value) in headers) {
-            requestBuilder.addHeader(name, value)
-        }
+        val requestBuilder = addHeaders(baseUrl)
 
         when (method) {
             HttpMethod.Get -> requestBuilder.get()
@@ -82,6 +86,15 @@ abstract class Endpoint {
         return requestBuilder.build()
     }
 
+    private fun addHeaders(baseUrl: String): Request.Builder {
+        val buildRequestUrl = buildRequestUrl(baseUrl)
+        val requestBuilder = Request.Builder().url(buildRequestUrl)
+        for ((name, value) in headers) {
+            requestBuilder.addHeader(name, value)
+        }
+        return requestBuilder
+    }
+
     /**
      * After declaring the serializer module.
      * We must explicitly pass an instance of PolymorphicSerializer for
@@ -97,10 +110,17 @@ abstract class Endpoint {
      * @return formatted json string
      */
     private fun formatJson(requestJsonFormatter: Json, data: Any): String {
+        val filteredJson = encodeData(requestJsonFormatter, data)
+        return requestJsonFormatter.encodeToString(filteredJson)
+    }
+
+    private fun encodeData(
+        requestJsonFormatter: Json,
+        data: Any
+    ): Map<String, JsonElement> {
         val jsonString =
             requestJsonFormatter.encodeToJsonElement(PolymorphicSerializer(Any::class), data)
-        val filteredJson = jsonString.jsonObject.filterNot { it.key == "type" }
-        return requestJsonFormatter.encodeToString(filteredJson)
+        return jsonString.jsonObject.filterNot { it.key == "type" }
     }
 
     private fun buildRequestUrl(baseUrl: String): URL {
@@ -134,4 +154,56 @@ abstract class Endpoint {
         headers: Map<String, String> = emptyMap()
     ): MockedResponse =
         MockedResponse(subpath, statusCode, Json.encodeToString(bodySerializable), headers)
+
+    /**
+     * Builds a multipart request to be sent to the server
+     * @param baseUrl is the base url of the request.
+     * @param requestJsonFormatter is the [Json] formatter used to encode models to JSON.
+     * @return is the formed request containing the base url, header and body to be sent to the
+     * server.
+     */
+    fun buildMultipartRequest(baseUrl: String, requestJsonFormatter: Json): Request {
+        val requestBuilder = addHeaders(baseUrl)
+        val multiPartBuilder = MultipartBody.Builder().setType(MultipartBody.FORM)
+        fileDataParts.forEach { fileDataPart: FileDataPart ->
+            multiPartBuilder.addFormDataPart(
+                fileDataPart.name,
+                fileDataPart.file.nameWithoutExtension,
+                fileDataPart.asRequestBody()
+            )
+        }
+        when (val httpMethod = method) {
+            is HttpMethod.Patch<*> -> {
+                val multipartBody =
+                    buildMultiPartFromJson(requestJsonFormatter, httpMethod.body!!, multiPartBuilder)
+                requestBuilder.patch(multipartBody)
+            }
+            is HttpMethod.Post<*> -> {
+                val multipartBody =
+                    buildMultiPartFromJson(requestJsonFormatter, httpMethod.body!!, multiPartBuilder)
+                requestBuilder.post(multipartBody)
+            }
+            is HttpMethod.Put<*> -> {
+                val multipartBody =
+                    buildMultiPartFromJson(requestJsonFormatter, httpMethod.body!!, multiPartBuilder)
+                requestBuilder.put(multipartBody)
+            }
+            else -> {
+                throw IllegalArgumentException("$method is not allowed for a multipart request.")
+            }
+        }
+        return requestBuilder.build()
+    }
+
+    private fun buildMultiPartFromJson(
+        requestJsonFormatter: Json,
+        body: Any,
+        multiPartBuilder: MultipartBody.Builder
+    ): MultipartBody {
+        val encodedJson = encodeData(requestJsonFormatter, body)
+        encodedJson.forEach {
+            multiPartBuilder.addFormDataPart(it.key, it.value.toString())
+        }
+        return multiPartBuilder.build()
+    }
 }

@@ -91,7 +91,7 @@ sealed class PostmanEchoEndpoint : Endpoint() {
 }
 
 ```
-### Step 3: Calling your API endpoint with the Result type
+### Step 3a: Calling your API endpoint with the Result type
 Call an API endpoint providing a response type and an also an error type.
 
 ```Kotlin
@@ -126,6 +126,56 @@ You can also use more functional methods like `map()`, `andThen()`, `mapEither()
 
 Microya-Kotlin returns a `JsonApiException` when the request is unsuccessful. You can call `.getBody()` after type casting the `jsonApiException` to a `ClientError`
 
+### Step 3b: Multipart File Upload
+
+Microya-Kotlin supports file uploads using multipart requests. To perform multipart request with Microya-kotlin, you'll need to use the `performUploadRequest` function.
+For example, here's how to upload an image to Imgur with Microya-Kotlin.
+Model you request class. The request class takes a list of `FileDataPart`. These are file parts to be included in multipart request.
+Take note of the `@Transient` annotation. This means the `fileDataParts` won't be serialized. The `fileDataParts` would be included in a multipart request by Microya-Kotlin.
+
+```kotlin
+@Serializable
+data class UploadImageRequest(
+    val title: String,
+    val description: String,
+    @Transient
+    val fileDataParts: List<FileDataPart> = emptyList()
+)
+```
+
+Next step is modeling the ImgurEndpoint. The only difference between endpoint with file uploads and normal endpoints is the `fileDataParts` variable. Endpoints with uploads override this variable.
+
+```kotlin
+sealed class ImgurEndpoint : Endpoint() {
+    data class UploadImageEndpoint(val body: UploadImageRequest) : ImgurEndpoint()
+    override val subpath: String
+        get() = when (this) {
+            is UploadImageEndpoint -> "3/image"
+        }
+    override val method: HttpMethod
+        get() = when (this) {
+            is UploadImageEndpoint -> HttpMethod.Post(body)
+        }
+    override val headers: Map<String, String>
+        get() = emptyMap()
+    override val queryParameters: Map<String, String>
+        get() = emptyMap()
+    override val mockedResponse: MockedResponse?
+        get() = null
+    override val fileDataParts: List<FileDataPart>
+        get() = when (this) {
+            is UploadImageEndpoint -> body.fileDataParts
+        }
+}
+```
+
+Make the uploadRequest using `performUploadRequest`.
+```kotlin
+  val result: ImgurResponse<ImgurSuccessData> =
+                uploadFileSampleApiProvider.performUploadRequest<ImgurResponse<ImgurSuccessData>, ImgurResponse<ImgurErrorData>>(
+                                 uploadEndpoint
+                             ).get()!!
+```
 
 ### Plugins
 The builder of ApiProvider accepts a list of Plugin objects. You can implement your own plugins or use one of the existing ones in the Plugins directory. Here's are the callbacks a custom Plugin subclass can override:

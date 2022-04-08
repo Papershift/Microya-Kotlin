@@ -15,7 +15,8 @@ class HttpAuthPlugin(val scheme: Scheme, val token: String) : Plugin {
 
     enum class Scheme(val info: String) {
         BASIC("Basic"),
-        BEARER("Bearer")
+        BEARER("Bearer"),
+        CUSTOM("")
     }
 
     override fun modifyRequest(request: Request, endpoint: Endpoint): Request {
