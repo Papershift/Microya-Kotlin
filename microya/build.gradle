@@ -2,6 +2,7 @@ plugins {
     id 'com.android.library'
     id 'kotlin-android'
     id 'kotlinx-serialization'
+    id 'org.jetbrains.dokka'
 }
 // loads the secrets from the given file
 def secretPropertyFile = rootProject.file('secrets.properties')
