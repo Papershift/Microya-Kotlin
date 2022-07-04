@@ -28,18 +28,18 @@ jobs:
           sudo rm Gemfile.lock
           sudo bundle install
 
-      - name: Danger Lint (remote)
-        run: |
-          curl -o danger/pr_git_conventions.rb 'https://raw.githubusercontent.com/Papershift/Mobile-Lint/main/Shared/Danger/pr_git_conventions.rb'
-          bundle exec danger --dangerfile=danger/pr_git_conventions.rb --danger_id=pr_git_conventions --fail-on-errors=true
-        env:
-          DANGER_GITHUB_API_TOKEN: ${{ secrets.DANGER_API_TOKEN }}
-
-      - name: Danger Lint (local)
-        if: always()
-        run: bundle exec danger --dangerfile=danger/lint.rb --danger_id=lint --fail-on-errors=true
-        env:
-          DANGER_GITHUB_API_TOKEN: ${{ secrets.DANGER_API_TOKEN }}
+#      - name: Danger Lint (remote)
+#        run: |
+#          curl -o danger/pr_git_conventions.rb 'https://raw.githubusercontent.com/Papershift/Mobile-Lint/main/Shared/Danger/pr_git_conventions.rb'
+#          bundle exec danger --dangerfile=danger/pr_git_conventions.rb --danger_id=pr_git_conventions --fail-on-errors=true
+#        env:
+#          DANGER_GITHUB_API_TOKEN: ${{ secrets.DANGER_API_TOKEN }}
+#
+#      - name: Danger Lint (local)
+#        if: always()
+#        run: bundle exec danger --dangerfile=danger/lint.rb --danger_id=lint --fail-on-errors=true
+#        env:
+#          DANGER_GITHUB_API_TOKEN: ${{ secrets.DANGER_API_TOKEN }}
 
   integration-tests:
     runs-on: macos-latest
