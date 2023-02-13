@@ -214,14 +214,15 @@ class ApiProvider private constructor(
                 val errorBody = if (errorResponse.isEmpty()) {
                     null
                 } else {
-                    Json.decodeFromString<ClientError>(errorResponse)
+                    try {
+                        Json.decodeFromString<ClientError>(errorResponse)
+                    } catch (serializationException: SerializationException) {
+                        return Err(JsonApiException.ResponseDataConversionFailed(type = ClientError::class.toString(), exception = serializationException))
+                    } catch (exception: Exception) {
+                        return Err(JsonApiException.UnexpectedException(exception))
+                    }
                 }
-                Err(
-                    JsonApiException.ClientError(
-                        statusCode = response.code,
-                        errorBody = errorBody
-                    )
-                )
+                Err(JsonApiException.ClientError(statusCode = response.code, errorBody = errorBody))
             }
             in 500..599 -> {
                 onRequestComplete(response, null, endpoint)

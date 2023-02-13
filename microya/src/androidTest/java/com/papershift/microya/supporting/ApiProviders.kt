@@ -12,38 +12,27 @@ import okhttp3.OkHttpClient
 import java.lang.IllegalArgumentException
 import kotlin.time.Duration
 
-val sampleApiProvider = ApiProvider.Builder().baseUrl("https://postman-echo.com")
-    .client(OkHttpClient())
+val sampleApiProvider = ApiProvider.Builder().baseUrl("https://postman-echo.com").client(OkHttpClient())
     .plugins(listOf(HttpAuthPlugin(HttpAuthPlugin.Scheme.BASIC, "abc123"), RequestLoggerPlugin {
         TestDataStore.request = it
     }, ResponseLoggerPlugin {
         TestDataStore.response = it
-    }))
-    .requestJsonFormatter(Serializer.requestJsonFormatter)
-    .responseJsonFormatter(Serializer.responseJsonFormatter)
-    .build()
+    })).requestJsonFormatter(Serializer.requestJsonFormatter).responseJsonFormatter(Serializer.responseJsonFormatter).build()
 
-val mockedImmediateApiProvider = ApiProvider.Builder().baseUrl("https://postman-echo.com")
-    .client(OkHttpClient())
+val mockedImmediateApiProvider = ApiProvider.Builder().baseUrl("https://postman-echo.com").client(OkHttpClient())
     .plugins(listOf(HttpAuthPlugin(HttpAuthPlugin.Scheme.BASIC, "abc123"), RequestLoggerPlugin {
         TestDataStore.request = it
     }, ResponseLoggerPlugin {
         TestDataStore.response = it
-    }))
-    .requestJsonFormatter(Serializer.requestJsonFormatter)
-    .responseJsonFormatter(Serializer.responseJsonFormatter)
-    .mockingBehaviour(MockingBehaviour(Duration.ZERO))
-    .build()
+    })).requestJsonFormatter(Serializer.requestJsonFormatter).responseJsonFormatter(Serializer.responseJsonFormatter)
+    .mockingBehaviour(MockingBehaviour(Duration.ZERO)).build()
 
-val mockedWithCustomResponseApiProvider = ApiProvider.Builder().baseUrl("https://postman-echo.com")
-    .client(OkHttpClient())
+val mockedWithCustomResponseApiProvider = ApiProvider.Builder().baseUrl("https://postman-echo.com").client(OkHttpClient())
     .plugins(listOf(HttpAuthPlugin(HttpAuthPlugin.Scheme.BASIC, "abc123"), RequestLoggerPlugin {
         TestDataStore.request = it
     }, ResponseLoggerPlugin {
         TestDataStore.response = it
-    }))
-    .requestJsonFormatter(Serializer.requestJsonFormatter)
-    .responseJsonFormatter(Serializer.responseJsonFormatter)
+    })).requestJsonFormatter(Serializer.requestJsonFormatter).responseJsonFormatter(Serializer.responseJsonFormatter)
     .mockingBehaviour(MockingBehaviour(Duration.ZERO) { endpoint: Endpoint ->
         when (endpoint) {
             is PostmanEchoEndpoint.Index -> {
@@ -61,21 +50,12 @@ val mockedWithCustomResponseApiProvider = ApiProvider.Builder().baseUrl("https:/
             }
             else -> throw  IllegalArgumentException("Endpoint doesn't exist.")
         }
-    })
-    .build()
+    }).build()
 
-val uploadFileSampleApiProvider = ApiProvider.Builder().baseUrl("https://api.imgur.com")
-    .client(OkHttpClient())
-    .plugins(
-        listOf(
-            HttpAuthPlugin(HttpAuthPlugin.Scheme.CUSTOM, "Client-ID ${BuildConfig.IMGUR_API_KEY}"),
-            RequestLoggerPlugin {
-                TestDataStore.request = it
-            },
-            ResponseLoggerPlugin {
-                TestDataStore.response = it
-            })
-    )
-    .requestJsonFormatter(Serializer.requestJsonFormatter)
-    .responseJsonFormatter(Serializer.responseJsonFormatter)
-    .build()
+val uploadFileSampleApiProvider = ApiProvider.Builder().baseUrl("https://api.imgur.com").client(OkHttpClient())
+    .plugins(listOf(HttpAuthPlugin(HttpAuthPlugin.Scheme.CUSTOM, "Client-ID ${BuildConfig.IMGUR_API_KEY}"), RequestLoggerPlugin {
+        TestDataStore.request = it
+    }, ResponseLoggerPlugin {
+        TestDataStore.response = it
+    })
+    ).requestJsonFormatter(Serializer.requestJsonFormatter).responseJsonFormatter(Serializer.responseJsonFormatter).build()
